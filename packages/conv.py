@@ -10,8 +10,8 @@ import pandas as pd
 import time
 from natsort import natsorted
 
-theano.config.exception_verbosity='high'
-theano.config.optimizer='None'
+# theano.config.exception_verbosity='high'
+# theano.config.optimizer='None'
 
 ##### FROM http://deeplearning.net/tutorial/lenet.html
 numpy.set_printoptions(threshold=numpy.inf)
@@ -20,7 +20,11 @@ def run_cnn(pairPath):
     #result vector
     flattenImage = []
 
-    for filename in os.listdir(pairPath):
+    # Re order the directory to make sure every images are processed in the desired order
+    imgList = natsorted(os.listdir(pairPath))
+
+    # For each image, apply convolution
+    for filename in imgList:
         if filename.endswith('.png') :
             filepath = os.path.join(pairPath, filename)
 
@@ -136,6 +140,7 @@ def run_cnn(pairPath):
 
             #print filtered_img[0][0]
 
+            # Save the results as a vector
             for i in range(len(filtered_img[0])):
                 for j in range(len(filtered_img[0][i])):
                     for k in range(len(filtered_img[0][i][j])):
@@ -145,7 +150,9 @@ def run_cnn(pairPath):
 
 
 
+# Function that call the convolution function
 def fc(stack):
+    # List to store the results of the convolution of the pair as a vector
     img_vec = []
     for root, dirs, files in os.walk(stack, topdown=True):
         dirs = natsorted(dirs)
@@ -160,6 +167,7 @@ def fc(stack):
 
     img_df = pd.DataFrame(img_vec)
 
+    # Save the results in CSV file
     vecFile = os.path.join(stack,'vecImg.csv')
     img_df.to_csv(vecFile, index=False, header=False)
 

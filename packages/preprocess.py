@@ -8,10 +8,11 @@ import glob
 import csv
 import PIL.ImageOps
 
-#Check if first file of a directory is tif or not
+#Check if first file of a directory is tif or not and depending on it convert to png
 def processDir(stackPath) :
     print stackPath
 
+    #
     for root, dirs, files in os.walk(stackPath, topdown=True):
         for name in files:
             #print name
