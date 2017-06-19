@@ -36,7 +36,7 @@ def run_cnn(pairPath):
 
             ####################################### CONV 1 #######################################
             # initialize shared variable for weights.
-            w_shp = (10, 1, 15, 15)
+            w_shp = (2, 1, 15, 15)
             w_bound = numpy.sqrt(1 * 15 * 15)
             W = theano.shared( numpy.asarray(
                         rng.uniform(
@@ -50,7 +50,7 @@ def run_cnn(pairPath):
             # particular application, we simply apply the convolutional layer to
             # an image without learning the parameters. We therefore initialize
             # them to random values to "simulate" learning.
-            b_shp = (10,)
+            b_shp = (2,)
             b = theano.shared(numpy.asarray(
                         rng.uniform(low=-.5, high=.5, size=b_shp),
                         dtype=input.dtype), name ='b')
@@ -65,8 +65,8 @@ def run_cnn(pairPath):
 
             # ####################################### CONV 2 #######################################
             # initialize shared variable for weights.
-            w_shp_2 = (10, 10, 15, 15)
-            w_bound_2 = numpy.sqrt(10 * 15 * 15)
+            w_shp_2 = (2, 2, 15, 15)
+            w_bound_2 = numpy.sqrt(2 * 15 * 15)
             W_2 = theano.shared( numpy.asarray(
                         rng.uniform(
                             low=-1.0 / w_bound_2,
@@ -79,7 +79,7 @@ def run_cnn(pairPath):
             # particular application, we simply apply the convolutional layer to
             # an image without learning the parameters. We therefore initialize
             # them to random values to "simulate" learning.
-            b_shp_2 = (10,)
+            b_shp_2 = (2,)
             b_2 = theano.shared(numpy.asarray(
                         rng.uniform(low=-.5, high=.5, size=b_shp_2),
                         dtype=input.dtype), name ='b_2')
@@ -96,8 +96,8 @@ def run_cnn(pairPath):
 
             # ####################################### CONV 3 #######################################
             # initialize shared variable for weights.
-            w_shp_3 = (10, 10, 5, 5)
-            w_bound_3 = numpy.sqrt(10 * 5 * 5)
+            w_shp_3 = (2, 2, 5, 5)
+            w_bound_3 = numpy.sqrt(2 * 5 * 5)
             W_3 = theano.shared( numpy.asarray(
                         rng.uniform(
                             low=-1.0 / w_bound_3,
@@ -110,7 +110,7 @@ def run_cnn(pairPath):
             # particular application, we simply apply the convolutional layer to
             # an image without learning the parameters. We therefore initialize
             # them to random values to "simulate" learning.
-            b_shp_3 = (10,)
+            b_shp_3 = (2,)
             b_3 = theano.shared(numpy.asarray(
                         rng.uniform(low=-.5, high=.5, size=b_shp_3),
                         dtype=input.dtype), name ='b_3')

@@ -4,7 +4,6 @@ import numpy
 from PIL import Image
 import shutil
 from math import *
-import glob
 import csv
 import PIL.ImageOps
 
@@ -112,23 +111,26 @@ def resize(stackPath, largerSize, newDir):
         return stackPath
 
 def flipDataset(dataset):
-    for root, dirs, files in os.walk(dataset, topdown=True):
-        for stacks in dirs :
-            cur_stack = os.path.join(dataset,stacks)
-            if not cur_stack.endswith('_flipped'):
-                new_stack = cur_stack + '_flipped'
-                if not os.path.exists(new_stack):
-                    os.mkdir(new_stack)
-                print new_stack
-                for img in os.listdir(cur_stack) :
-                    imgPath = os.path.join(cur_stack, img)
-                    if not os.path.isdir(imgPath) and img.endswith('.png') :
-                        newImgPath = os.path.join(new_stack, img)
-                        with Image.open(imgPath) as im :
-                            new_im = im.transpose(Image.FLIP_LEFT_RIGHT)
-                            new_im.save(newImgPath)
-            else :
-                pass
+    # for root, dirs, files in os.walk(dataset, topdown=True):
+    #     print 'List of dirs : ' + str(dirs)
+    dirs = os.walk(dataset).next()[1]
+    print 'List of dirs : ' + str(dirs)
+    for stacks in dirs :
+        cur_stack = os.path.join(dataset,stacks)
+        if not cur_stack.endswith('_flipped'):
+            new_stack = cur_stack + '_flipped'
+            if not os.path.exists(new_stack):
+                os.mkdir(new_stack)
+            print new_stack
+            for img in os.listdir(cur_stack) :
+                imgPath = os.path.join(cur_stack, img)
+                if not os.path.isdir(imgPath) and img.endswith('.png') :
+                    newImgPath = os.path.join(new_stack, img)
+                    with Image.open(imgPath) as im :
+                        new_im = im.transpose(Image.FLIP_LEFT_RIGHT)
+                        new_im.save(newImgPath)
+        else :
+            pass
     return 0
 
 #Check all stacks and get the larger size of image to resize other stacks
@@ -157,16 +159,3 @@ def getLargerSize(stacks, basePath):
             break
 
     return largerSize
-
-# def invertColors(stack):
-#     new_dir = stack + str('_inverted')
-#     if not os.path.exists(new_dir):
-#         os.mkdir(new_dir)
-#     for fileName in os.listdir(stack) :
-#         filePath = os.path.join(stack,fileName)
-#         newImgPath = os.path.join(new_dir,fileName)
-#         if not os.path.isdir(filePath) and fileName.endswith('.png') :
-#             with Image.open(filePath) as im:
-#                 inv_img = PIL.ImageOps.invert(im)
-#                 inv_img.save(newImgPath)
-#     return 0
