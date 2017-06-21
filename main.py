@@ -111,7 +111,7 @@ def main():
     ]
 
     all_score = []
-    nb = 10
+    nb = 1
     for  i in range(nb):
         print i
         # Arrange the data to make it ready to be the input of the machine learner
