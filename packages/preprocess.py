@@ -10,18 +10,18 @@ import PIL.ImageOps
 
 #Check if first file of a directory is tif or not and depending on it convert to png
 def processDir(stackPath) :
-    print stackPath
+    print (stackPath)
 
     #
     for root, dirs, files in os.walk(stackPath, topdown=True):
         for name in files:
             #print name
             if name.endswith('tif'):
-                print 'TEST'
+                print ('TEST')
                 stackIsTif = True
                 break
             else :
-                print 'File tested : ' + str(name)
+                # print 'File tested : ' + str(name)
                 stackIsTif = False
                 break
         break
@@ -157,16 +157,3 @@ def getLargerSize(stacks, basePath):
             break
 
     return largerSize
-
-# def invertColors(stack):
-#     new_dir = stack + str('_inverted')
-#     if not os.path.exists(new_dir):
-#         os.mkdir(new_dir)
-#     for fileName in os.listdir(stack) :
-#         filePath = os.path.join(stack,fileName)
-#         newImgPath = os.path.join(new_dir,fileName)
-#         if not os.path.isdir(filePath) and fileName.endswith('.png') :
-#             with Image.open(filePath) as im:
-#                 inv_img = PIL.ImageOps.invert(im)
-#                 inv_img.save(newImgPath)
-#     return 0

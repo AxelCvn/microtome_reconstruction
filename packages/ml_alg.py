@@ -12,7 +12,7 @@ import time
 import ast
 import pandas as pd
 
-def arrange_data(vec_files, rot_files):
+def arrange_data(vec_files, rot_files, nb):
     # #Check the number of dataset to process
     # dataNb = len(vec_files)
     #
@@ -56,9 +56,9 @@ def arrange_data(vec_files, rot_files):
 
     vecList = []
 
-    all_vec = '/home/bioprinting/axel/vecShuf.csv'
+    all_vec = '/home/bioprinting/axel/vecShuf_' + str(nb) + '.csv'
     for vecFile in vec_files :
-        tmpList = pd.read_csv(vecFile,header=0)
+        tmpList = pd.read_csv(vecFile,header=None)
         for index, row in tmpList.iterrows():
             vecList.append(row.tolist())
 
@@ -78,16 +78,16 @@ def arrange_data(vec_files, rot_files):
 
     rot_list = []
 
-    all_rot = '/home/bioprinting/axel/rotShuf.csv'
+    all_rot = '/home/bioprinting/axel/rotShuf_' + str(nb) + '.csv'
 
     for rotFile in rot_files :
-        tmpList = pd.read_csv(rotFile,header=0)
+        tmpList = pd.read_csv(rotFile,header=None)
         for index, row in tmpList.iterrows():
             rot_list.append(row.tolist()[0])
 
     print 'ROT LIST SIZE : ' + str(len(rot_list))
 
-    shuf = '/home/bioprinting/axel/shuf.csv'
+    shuf = '/home/bioprinting/axel/shuf_' + str(nb) + '.csv'
     if len(vecList) == len(rot_list) :
             index_shuf = range(len(vecList))
     else :
@@ -122,23 +122,24 @@ def arrange_data(vec_files, rot_files):
     print 'Len of test_labels : ' + str(len(test_labels))
 
     test_pred_df = pd.DataFrame(test_labels)
-    test_pred_df.to_csv('/home/bioprinting/axel/pred_val.csv', index=False, header=False)
+    pred_csv = '/home/bioprinting/axel/pred_val_' + str(nb) + '.csv'
+    test_pred_df.to_csv(pred_csv, index=False, header=False)
 
 
     return training_data, training_labels, test_data, test_labels
 
-def learn(training_data, training_labels, test_data, test_labels):
+def learn(training_data, training_labels, test_data, test_labels, nb):
 
     ###################### RANDOM FOREST REGRESSOR ######################
     rfr_res=[]
     rfr_iter = []
     rfr_iter_val = []
-    x = [10, 50, 100]
+    x = [10, 50]
     for j in x :
 
         nb_estim = j
         # RandomForestRegressor - parameters declaration
-        rgs_fast = RandomForestRegressor(n_estimators=nb_estim, n_jobs = -1, verbose=3)
+        rgs_fast = RandomForestRegressor(n_estimators=nb_estim, n_jobs = 5, verbose=3)
         #rgs = RandomForestRegressor(n_estimators=nb_estim, verbose=3)
 
 
@@ -169,7 +170,7 @@ def learn(training_data, training_labels, test_data, test_labels):
         rfr_pred_df = pd.DataFrame(rfr_pred)
 
         # Save the predictions in CSV file
-        rfr_pred_path = '/home/bioprinting/axel/data_res/rfr_pred_' + str(j) + '.csv'
+        rfr_pred_path = '/home/bioprinting/axel/data_res/rfr_pred_' + str(nb)  + '_' + str(j) + '.csv'
 
         rfr_pred_df.to_csv(rfr_pred_path, index=False, header=False)
 
@@ -184,109 +185,108 @@ def learn(training_data, training_labels, test_data, test_labels):
     rfr_res.append(rfr_iter)
     # rfr_val.append(rfr_iter_val)
     #####################################################################
+    #
+    # ##################### SUPPORT VECTOR REGRESSION #####################
+    # svr_res_lin = []
+    # svr_res_poly =[]
+    #
+    # #svr_rbf = svm.SVR(kernel='rbf', C=1e3, gamma=0.1)
+    # svr_lin = svm.SVR(kernel='linear', C=1e3)
+    # svr_poly = svm.SVR(kernel='poly', C=1e3, degree=2)
+    #
+    # #y_rbf = svr_rbf.fit(inputDataTest, inputMetaDataTest)
+    #
+    # lin_Time = time.time()
+    # y_lin = svr_lin.fit(training_data, training_labels)
+    # print("--- %s seconds --- Linear training Time" % (time.time() - lin_Time))
+    # poly_Time = time.time()
+    # y_poly = svr_poly.fit(training_data, training_labels)
+    # print("--- %s seconds --- Poly training Time" % (time.time() - poly_Time))
+    # # ################## TRAINING DATA ##################
+    # # svr_linTrain = y_lin.score(training_data, training_labels)
+    # # svr_polyTrain = y_poly.score(training_data, training_labels)
+    # # print "svr_linTrain = " + str(svr_linTrain)
+    # # print "svr_polyTrain = " + str(svr_polyTrain)
+    #
+    #
+    # #################### TEST DATA ####################
+    # #LINEAR SVR
+    # svr_lin = y_lin.score(test_data, test_labels)
+    # print "svr_linTest = " + str(svr_lin)
+    # svr_res_lin.append(svr_lin)
+    #
+    # #POLY SVR
+    # svr_poly = y_poly.score(test_data, test_labels)
+    # print "svr_polyTest = " + str(svr_poly)
+    # svr_res_poly.append(svr_poly)
+    #
+    # ############ MAKE AND SAVE PREDICTION ############
+    # lin_pred = y_lin.predict(test_data)
+    # mae = mean_absolute_error(test_labels, lin_pred)
+    # print 'Mean Absolute error SVR lin : ' + str(mae)
+    #
+    # poly_pred = y_poly.predict(test_data)
+    # mae = mean_absolute_error(test_labels, poly_pred)
+    # print 'Mean Absolute error SVR poly: ' + str(mae)
+    #
+    #
+    # lin_err = 0
+    # for z in range(len(test_labels)):
+    #     lin_err += abs(lin_pred[z]-test_labels[z])
+    # lin_err = lin_err/len(test_labels)
+    # print ' Linear SVR error : ' + str(lin_err)
+    #
+    # poly_err = 0
+    # for z in range(len(test_labels)):
+    #     poly_err += abs(poly_pred[z]-test_labels[z])
+    # poly_err = poly_err/len(test_labels)
+    # print ' Poly SVR error : ' + str(poly_err)
+    #
+    # lin_pred_df = pd.DataFrame(lin_pred)
+    # poly_pred_df = pd.DataFrame(poly_pred)
+    #
+    # lin_pred_df.to_csv('/home/bioprinting/axel/lin_pred.csv', index=False, header=False)
+    # poly_pred_df.to_csv('/home/bioprinting/axel/data_res/poly_pred.csv', index=False, header=False)
+    #
 
-    ##################### SUPPORT VECTOR REGRESSION #####################
-    svr_res_lin = []
-    svr_res_poly =[]
+    # ##################### NEURAL NETWORK REGRESSION #####################
+    # hd_lrs = [100,200,300]
+    #
+    # nnr_res =[]
+    # nnr_iter = []
+    # for h in hd_lrs :
+    #
+    #     nnr = neural_network.MLPRegressor(hidden_layer_sizes=h,activation='identity',solver='adam')
+    #
+    #     NNRTime = time.time()
+    #     nnr = nnr.fit(training_data, training_labels)
+    #     print("--- %s seconds --- NNR Training Time with %d estimators" %((time.time() - NNRTime),h))
+    #
+    #     # resVal = nnr.score(training_data, training_labels)
+    #
+    #
+    #     res = nnr.score(test_data, test_labels)
+    #     print "TRAIN results with NeuralNetworkRegressor : " + str(res)
+    #
+    #     nnr_pred = nnr.predict(test_data)
+    #     mae = mean_absolute_error(test_labels, nnr_pred)
+    #     print 'Mean Absolute error NNR : ' + str(mae)
+    #
+    #     nnr_pred_df = pd.DataFrame(nnr_pred)
+    #
+    #     nnr_pred_path = '/home/bioprinting/axel/data_res/nnr_pred_' + str(h) + '.csv'
+    #
+    #     rfr_pred_df.to_csv(rfr_pred_path, index=False, header=False)
+    #
+    #     print "TEST results with NeuralNetworkRegressor : " + str(res)
+    #     nnr_iter.append(res)
+    #
+    #     nnr_err = 0
+    #     for z in range(len(test_labels)):
+    #         nnr_err += abs(nnr_pred[z]-test_labels[z])
+    #     nnr_err = nnr_err/len(test_labels)
+    #     print ' NNR error : ' + str(nnr_err) + 'With hidden layers of size :' + str(h)
+    #
+    # nnr_res.append(nnr_iter)
 
-    #svr_rbf = svm.SVR(kernel='rbf', C=1e3, gamma=0.1)
-    svr_lin = svm.SVR(kernel='linear', C=1e3)
-    svr_poly = svm.SVR(kernel='poly', C=1e3, degree=2)
-
-    #y_rbf = svr_rbf.fit(inputDataTest, inputMetaDataTest)
-
-    lin_Time = time.time()
-    y_lin = svr_lin.fit(training_data, training_labels)
-    print("--- %s seconds --- Linear training Time" % (time.time() - lin_Time))
-    poly_Time = time.time()
-    y_poly = svr_poly.fit(training_data, training_labels)
-    print("--- %s seconds --- Poly training Time" % (time.time() - poly_Time))
-    # ################## TRAINING DATA ##################
-    # svr_linTrain = y_lin.score(training_data, training_labels)
-    # svr_polyTrain = y_poly.score(training_data, training_labels)
-    # print "svr_linTrain = " + str(svr_linTrain)
-    # print "svr_polyTrain = " + str(svr_polyTrain)
-
-
-    #################### TEST DATA ####################
-    #LINEAR SVR
-    svr_lin = y_lin.score(test_data, test_labels)
-    print "svr_linTest = " + str(svr_lin)
-    svr_res_lin.append(svr_lin)
-
-    #POLY SVR
-    svr_poly = y_poly.score(test_data, test_labels)
-    print "svr_polyTest = " + str(svr_poly)
-    svr_res_poly.append(svr_poly)
-
-    ############ MAKE AND SAVE PREDICTION ############
-    lin_pred = y_lin.predict(test_data)
-    mae = mean_absolute_error(test_labels, lin_pred)
-    print 'Mean Absolute error SVR lin : ' + str(mae)
-
-    poly_pred = y_poly.predict(test_data)
-    mae = mean_absolute_error(test_labels, poly_pred)
-    print 'Mean Absolute error SVR poly: ' + str(mae)
-
-
-    lin_err = 0
-    for z in range(len(test_labels)):
-        lin_err += abs(lin_pred[z]-test_labels[z])
-    lin_err = lin_err/len(test_labels)
-    print ' Linear SVR error : ' + str(lin_err)
-
-    poly_err = 0
-    for z in range(len(test_labels)):
-        poly_err += abs(poly_pred[z]-test_labels[z])
-    poly_err = poly_err/len(test_labels)
-    print ' Poly SVR error : ' + str(poly_err)
-
-    lin_pred_df = pd.DataFrame(lin_pred)
-    poly_pred_df = pd.DataFrame(poly_pred)
-
-    lin_pred_df.to_csv('/home/bioprinting/axel/lin_pred.csv', index=False, header=False)
-    poly_pred_df.to_csv('/home/bioprinting/axel/data_res/poly_pred.csv', index=False, header=False)
-
-
-
-    ##################### NEURAL NETWORK REGRESSION #####################
-    hd_lrs = [100,200,300]
-
-    nnr_res =[]
-    nnr_iter = []
-    for h in hd_lrs :
-
-        nnr = neural_network.MLPRegressor(hidden_layer_sizes=h,activation='identity',solver='adam')
-
-        NNRTime = time.time()
-        nnr = nnr.fit(training_data, training_labels)
-        print("--- %s seconds --- NNR Training Time with %d estimators" %((time.time() - NNRTime),h))
-
-        # resVal = nnr.score(training_data, training_labels)
-
-
-        res = nnr.score(test_data, test_labels)
-        print "TRAIN results with NeuralNetworkRegressor : " + str(res)
-
-        nnr_pred = nnr.predict(test_data)
-        mae = mean_absolute_error(test_labels, nnr_pred)
-        print 'Mean Absolute error NNR : ' + str(mae)
-
-        nnr_pred_df = pd.DataFrame(nnr_pred)
-
-        nnr_pred_path = '/home/bioprinting/axel/data_res/nnr_pred_' + str(h) + '.csv'
-
-        rfr_pred_df.to_csv(rfr_pred_path, index=False, header=False)
-
-        print "TEST results with NeuralNetworkRegressor : " + str(res)
-        nnr_iter.append(res)
-
-        nnr_err = 0
-        for z in range(len(test_labels)):
-            nnr_err += abs(nnr_pred[z]-test_labels[z])
-        nnr_err = nnr_err/len(test_labels)
-        print ' NNR error : ' + str(nnr_err) + 'With hidden layers of size :' + str(h)
-
-    nnr_res.append(nnr_iter)
-
-    return 0
+    return rfr_res
